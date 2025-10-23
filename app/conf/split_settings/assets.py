@@ -16,14 +16,10 @@ if not gitignore_path.exists():
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
-# TODO: Test whether you can use ASSETS_DIR directly in STATIC_URL
 STATIC_URL = "app/assets/static/"
 STATIC_ROOT = ASSETS_DIR / "static"
 
-# ------------------------------------------------------------------------------
 # Media Files (User-uploaded content)
 # https://docs.djangoproject.com/en/stable/ref/settings/#media-files
-# ------------------------------------------------------------------------------
-# TODO: Test whether you can use ASSETS_DIR directly in MEDIA_URL
 MEDIA_URL = "app/assets/media/"
 MEDIA_ROOT = ASSETS_DIR / "media"
