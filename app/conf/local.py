@@ -2,7 +2,7 @@ from split_settings.tools import include, optional
 
 # Include settings segments
 include(
-    "./split_settings/base.py",  # Load base settings first
+    "./split_settings/main.py",  # Load main settings first
     optional("./split_settings/*.py"),
 )
 
