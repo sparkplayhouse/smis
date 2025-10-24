@@ -1,7 +1,7 @@
 {
   "name": "djanx-tailwindcss",
   "scripts": {
-    "dev": "npx @tailwindcss/cli -i ./input.css -o ./output.css --watch",
+    "watch": "npx @tailwindcss/cli -i ./input.css -o ./output.css --watch",
     "build": "npx @tailwindcss/cli -i ./input.css -o ./output.css --minify"
   },
   "dependencies": {

@@ -3,7 +3,7 @@ Django management command for managing Tailwind CSS.
 
 Usage:
     python manage.py tailwind install [--force]
-    python manage.py tailwind dev
+    python manage.py tailwind watch
     python manage.py tailwind build
     python manage.py tailwind status
 """
@@ -37,7 +37,7 @@ class Command(BaseCommand):
 
         # Dev subcommand
         subparsers.add_parser(
-            "dev", help="Run Tailwind CSS in development mode (with watch)"
+            "watch", help="Run Tailwind CSS in development mode (with watch)"
         )
 
         # Build subcommand
@@ -62,8 +62,8 @@ class Command(BaseCommand):
         match subcommand:
             case "install":
                 self.install(options.get("force", False))
-            case "dev":
-                self.dev()
+            case "watch":
+                self.watch()
             case "build":
                 self.build()
             case "status":
@@ -158,7 +158,7 @@ class Command(BaseCommand):
             self.stdout.write(e.stderr)
             raise CommandError("npm install failed")
 
-    def dev(self):
+    def watch(self):
         """Run Tailwind CSS in development/watch mode."""
         self._validate_setup()
         self._check_npm()
@@ -169,12 +169,12 @@ class Command(BaseCommand):
 
         try:
             subprocess.run(
-                [self.npm_command, "run", "dev"], cwd=self.tailwind_dir, check=True
+                [self.npm_command, "run", "watch"], cwd=self.tailwind_dir, check=True
             )
         except KeyboardInterrupt:
             self.stdout.write("\nStopped Tailwind CSS watch mode")
         except subprocess.CalledProcessError:
-            raise CommandError("npm run dev failed")
+            raise CommandError("npm run watch failed")
 
     def build(self):
         """Build Tailwind CSS for production."""
@@ -285,6 +285,6 @@ class Command(BaseCommand):
         else:
             self.stdout.write(
                 self.style.WARNING(
-                    "⚠ Output CSS not found (run: python manage.py tailwind [dev / build])"
+                    "⚠ Output CSS not found (run: python manage.py tailwind [watch / build])"
                 )
             )
