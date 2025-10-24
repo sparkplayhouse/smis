@@ -14,4 +14,4 @@ SECRET_KEY = config("SECRET_KEY")
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
 # Include main settings
-include(str(Path(__file__).parent / "settings.py"))
+include(str(Path(__file__).resolve().parent / "settings.py"))
