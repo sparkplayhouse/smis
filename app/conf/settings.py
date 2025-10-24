@@ -119,10 +119,11 @@ ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 gitignore_path = ASSETS_DIR / ".gitignore"
 if not gitignore_path.exists():
     gitignore_path.write_text(
-        "# Automatically generated (once)\n"
-        "# This file will not be overwritten - you can safely edit it\n"
+        "# * Automatically generated once (unless you delete the entire assets folder)\n"
+        "# * As it's generated once, it will not be overwritten - you can safely edit it\n"
+        "\n"
         "# Ignore all files within this directory\n"
-        "*\n"
+        "*"
     )
 
 # Static files configuration
