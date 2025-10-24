@@ -14,6 +14,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 
@@ -37,7 +38,7 @@ class Command(BaseCommand):
 
         # Dev subcommand
         subparsers.add_parser(
-            "watch", help="Run Tailwind CSS in development mode (with watch)"
+            "watch", help="Run Tailwind CSS in development mode (minified with watch)"
         )
 
         # Build subcommand
@@ -77,6 +78,67 @@ class Command(BaseCommand):
         package_json = self.tailwind_dir / "package.json"
         if not package_json.exists():
             raise CommandError(f"package.json not found in {self.tailwind_dir}")
+
+    def _validate_tailwind_config(self):
+        """Validate that TAILWIND_CSS_CONFIG setting is configured and the file exists."""
+        # Check if setting exists
+        if not hasattr(settings, "TAILWIND_CSS_CONFIG"):
+            raise CommandError(
+                "TAILWIND_CSS_CONFIG setting is not defined in your Django settings.\n"
+                "Please add it to your settings file, for example:\n"
+                "TAILWIND_CSS_CONFIG = BASE_DIR / 'app' / 'conf' / 'tailwind.config.css'"
+            )
+
+        config_setting = settings.TAILWIND_CSS_CONFIG
+
+        # Check if it's a non-empty string or Path
+        if not config_setting:
+            raise CommandError(
+                f"TAILWIND_CSS_CONFIG must be a non-empty string or Path, got: {config_setting!r}"
+            )
+
+        # Convert to Path object if it's a string
+        if isinstance(config_setting, str):
+            config_path = Path(config_setting)
+        elif isinstance(config_setting, Path):
+            config_path = config_setting
+        else:
+            raise CommandError(
+                f"TAILWIND_CSS_CONFIG must be a string or Path object, got: {type(config_setting).__name__}"
+            )
+
+        # Check if file exists
+        if not config_path.exists():
+            raise CommandError(
+                f"Tailwind CSS config file not found: {config_path}\n"
+                f"TAILWIND_CSS_CONFIG is set to: {config_setting}\n"
+                "Please ensure the file exists or update the TAILWIND_CSS_CONFIG setting."
+            )
+
+        # Check if it's a file (not a directory)
+        if not config_path.is_file():
+            raise CommandError(
+                f"TAILWIND_CSS_CONFIG must point to a file, not a directory: {config_path}"
+            )
+
+        self.stdout.write(self.style.SUCCESS(f"✓ Using config: {config_path}"))
+
+        return config_path
+
+    def _copy_config_to_tailwind_dir(self, source_config):
+        """Copy the config file to tailwind directory for Tailwind CSS v4."""
+        dest_config = self.tailwind_dir / "input.css"
+
+        try:
+            # Check if source and destination are the same file
+            if source_config.resolve() == dest_config.resolve():
+                # Already in the right place, no need to copy
+                return dest_config
+
+            shutil.copy2(source_config, dest_config)
+            return dest_config
+        except Exception as e:
+            raise CommandError(f"Failed to copy config file: {e}")
 
     def _get_npm_command(self):
         """
@@ -195,8 +257,12 @@ class Command(BaseCommand):
     def watch(self):
         """Run Tailwind CSS in development/watch mode."""
         self._validate_setup()
+        source_config = self._validate_tailwind_config()
         self._check_npx()
         self._ensure_node_modules()
+
+        # Copy config to tailwind directory
+        local_config = self._copy_config_to_tailwind_dir(source_config)
 
         self.stdout.write("Starting Tailwind CSS in watch mode...")
         self.stdout.write("Press Ctrl+C to stop")
@@ -207,9 +273,10 @@ class Command(BaseCommand):
                     self.npx_command,
                     "@tailwindcss/cli",
                     "-i",
-                    "./input.css",
+                    str(local_config.name),
                     "-o",
                     "./output.css",
+                    "--minify",
                     "--watch",
                 ],
                 cwd=self.tailwind_dir,
@@ -223,8 +290,12 @@ class Command(BaseCommand):
     def build(self):
         """Build Tailwind CSS for production."""
         self._validate_setup()
+        source_config = self._validate_tailwind_config()
         self._check_npx()
         self._ensure_node_modules()
+
+        # Copy config to tailwind directory
+        local_config = self._copy_config_to_tailwind_dir(source_config)
 
         self.stdout.write("Building Tailwind CSS for production...")
 
@@ -234,7 +305,7 @@ class Command(BaseCommand):
                     self.npx_command,
                     "@tailwindcss/cli",
                     "-i",
-                    "./input.css",
+                    str(local_config.name),
                     "-o",
                     "./output.css",
                     "--minify",
@@ -286,6 +357,16 @@ class Command(BaseCommand):
                 self.stdout.write(f"  Name: {data.get('name', 'N/A')}")
         else:
             self.stdout.write(self.style.ERROR("✗ package.json not found"))
+
+        # Check TAILWIND_CSS_CONFIG setting
+        try:
+            config_path = self._validate_tailwind_config()
+            self.stdout.write(
+                self.style.SUCCESS(f"✓ TAILWIND_CSS_CONFIG: {config_path}")
+            )
+        except CommandError as e:
+            self.stdout.write(self.style.ERROR("✗ TAILWIND_CSS_CONFIG issue:"))
+            self.stdout.write(f"  {str(e)}")
 
         # Check npm availability
         npm_command = self._get_npm_command()

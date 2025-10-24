@@ -1,6 +1,9 @@
 from pathlib import Path
 
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+TAILWIND_CSS_CONFIG = BASE_DIR / "tailwind.config.css"
 
 # Application definition
 INSTALLED_APPS = [
