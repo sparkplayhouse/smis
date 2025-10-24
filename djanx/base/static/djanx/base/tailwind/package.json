@@ -1,10 +1,8 @@
 {
   "name": "djanx-tailwindcss",
   "scripts": {
-    "dev:tailwindcss": "npx @tailwindcss/cli -i ./input.css -o ./output.css --watch",
-    "dev": "npm run dev:tailwindcss",
-    "build:tailwindcss": "npx @tailwindcss/cli -i ./input.css -o ./output.css --minify",
-    "build": "npm run build:tailwindcss"
+    "dev": "npx @tailwindcss/cli -i ./input.css -o ./output.css --watch",
+    "build": "npx @tailwindcss/cli -i ./input.css -o ./output.css --minify"
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.1.16",
