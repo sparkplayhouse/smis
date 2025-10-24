@@ -1,6 +1,6 @@
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Build paths inside the project like this: BASE_DIR / 'subdir or file'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 TAILWIND_CSS_CONFIG = BASE_DIR / "tailwind.config.css"
@@ -47,11 +47,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "app.conf.wsgi.application"
 
+
 # Database
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
     "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
@@ -64,15 +66,25 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
+
 LANGUAGE_CODE = "en-us"
+
 TIME_ZONE = "Africa/Nairobi"
+
 USE_I18N = True
+
 USE_TZ = True
 
-# Assets Directory (Static + Media)
+
+# Static (CSS, JavaScript, Images) & Media(User-uploaded content) assets
+# https://docs.djangoproject.com/en/dev/howto/static-files/
+# https://docs.djangoproject.com/en/dev/ref/settings/#media-files
+
 ASSETS_DIR = BASE_DIR / "app" / "assets"
+
 ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Create a .gitignore file in the assets directory to ignore its contents
@@ -85,12 +97,10 @@ if not gitignore_path.exists():
         "*\n"
     )
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/dev/howto/static-files/
 STATIC_URL = "app/assets/static/"
+
 STATIC_ROOT = ASSETS_DIR / "static"
 
-# Media Files (User-uploaded content)
-# https://docs.djangoproject.com/en/stable/ref/settings/#media-files
 MEDIA_URL = "app/assets/media/"
+
 MEDIA_ROOT = ASSETS_DIR / "media"
