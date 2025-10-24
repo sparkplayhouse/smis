@@ -8,10 +8,12 @@ Usage:
     python manage.py tailwind status
 """
 
-import subprocess
-import shutil
 import json
+import platform
+import shutil
+import subprocess
 from pathlib import Path
+
 from django.core.management.base import BaseCommand, CommandError
 
 
@@ -76,14 +78,38 @@ class Command(BaseCommand):
         if not package_json.exists():
             raise CommandError(f"package.json not found in {self.tailwind_dir}")
 
+    def _get_npm_command(self):
+        """
+        Find and return the npm command.
+
+        Returns the full path to npm if found in PATH, otherwise None.
+        Users should ensure npm is in their system PATH.
+        """
+        return shutil.which("npm")
+
     def _check_npm(self):
-        """Check if npm is available."""
-        try:
-            subprocess.run(["npm", "--version"], capture_output=True, check=True)
-        except FileNotFoundError:
+        """Check if npm is available and store the command."""
+        npm_command = self._get_npm_command()
+
+        if not npm_command:
             raise CommandError(
-                "npm not found. Please install Node.js and npm first.\n"
-                "Visit: https://nodejs.org/"
+                "npm not found in PATH. Please ensure Node.js and npm are installed "
+                "and added to your system PATH.\n"
+                "Visit: https://nodejs.org/\n\n"
+                "After installation, you may need to:\n"
+                "  - Restart your terminal/IDE\n"
+                "  - Add npm to your PATH environment variable\n"
+                f"  - Current OS: {platform.system()}"
+            )
+
+        self.npm_command = npm_command
+
+        # Verify it works
+        try:
+            subprocess.run([npm_command, "--version"], capture_output=True, check=True)
+        except subprocess.CalledProcessError as e:
+            raise CommandError(
+                f"npm found at '{npm_command}' but failed to execute.\nError: {str(e)}"
             )
 
     def _ensure_node_modules(self):
@@ -113,7 +139,7 @@ class Command(BaseCommand):
 
         try:
             result = subprocess.run(
-                ["npm", "install"],
+                [self.npm_command, "install"],
                 cwd=self.tailwind_dir,
                 capture_output=True,
                 text=True,
@@ -142,7 +168,9 @@ class Command(BaseCommand):
         self.stdout.write("Press Ctrl+C to stop")
 
         try:
-            subprocess.run(["npm", "run", "dev"], cwd=self.tailwind_dir, check=True)
+            subprocess.run(
+                [self.npm_command, "run", "dev"], cwd=self.tailwind_dir, check=True
+            )
         except KeyboardInterrupt:
             self.stdout.write("\nStopped Tailwind CSS watch mode")
         except subprocess.CalledProcessError:
@@ -158,7 +186,7 @@ class Command(BaseCommand):
 
         try:
             result = subprocess.run(
-                ["npm", "run", "build"],
+                [self.npm_command, "run", "build"],
                 cwd=self.tailwind_dir,
                 capture_output=True,
                 text=True,
@@ -168,7 +196,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS("✓ Tailwind CSS build completed"))
 
             # Check if output file was created
-            output_css = self.tailwind_dir / "output" / "tailwind.css"
+            output_css = self.tailwind_dir / "output.css"
             if output_css.exists():
                 size = output_css.stat().st_size / 1024  # Size in KB
                 self.stdout.write(f"Output file: {output_css} ({size:.2f} KB)")
@@ -183,10 +211,10 @@ class Command(BaseCommand):
 
     def status(self):
         """Check Tailwind CSS setup status."""
-        self.stdout.write(self.style.MIGRATE_HEADING("Tailwind CSS Setup Status"))
+        self.stdout.write(self.style.MIGRATE_HEADING("Djanx Tailwind CSS Setup Status"))
         self.stdout.write("-" * 50)
 
-        # Check base directory
+        # Check tailwind directory
         if self.tailwind_dir.exists():
             self.stdout.write(
                 self.style.SUCCESS(f"✓ Base directory: {self.tailwind_dir}")
@@ -207,6 +235,32 @@ class Command(BaseCommand):
         else:
             self.stdout.write(self.style.ERROR("✗ package.json not found"))
 
+        # Check npm availability
+        npm_command = self._get_npm_command()
+        if npm_command:
+            try:
+                result = subprocess.run(
+                    [npm_command, "--version"],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f"✓ npm version: {result.stdout.strip()} (at {npm_command})"
+                    )
+                )
+            except subprocess.CalledProcessError:
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"⚠ npm found at {npm_command} but failed to execute"
+                    )
+                )
+        else:
+            self.stdout.write(
+                self.style.ERROR(f"✗ npm not found in PATH (OS: {platform.system()})")
+            )
+
         # Check node_modules
         node_modules = self.tailwind_dir / "node_modules"
         if node_modules.exists():
@@ -221,7 +275,7 @@ class Command(BaseCommand):
                 )
             )
 
-        # Check output directory
+        # Check output css
         output_css = self.tailwind_dir / "output.css"
         if output_css.exists():
             size = output_css.stat().st_size / 1024
@@ -231,17 +285,6 @@ class Command(BaseCommand):
         else:
             self.stdout.write(
                 self.style.WARNING(
-                    "⚠ Output CSS not found (run: python manage.py tailwind build)"
+                    "⚠ Output CSS not found (run: python manage.py tailwind [dev / build])"
                 )
             )
-
-        # Check npm availability
-        try:
-            result = subprocess.run(
-                ["npm", "--version"], capture_output=True, text=True, check=True
-            )
-            self.stdout.write(
-                self.style.SUCCESS(f"✓ npm version: {result.stdout.strip()}")
-            )
-        except FileNotFoundError:
-            self.stdout.write(self.style.ERROR("✗ npm not found in PATH"))
