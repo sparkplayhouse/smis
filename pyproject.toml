@@ -17,3 +17,7 @@ dependencies = [
 dev = [
     "djlint>=1.36.4",
 ]
+
+[tool.djlint]
+ignore = "H016"
+blank_line_after_tag = "load,extends"

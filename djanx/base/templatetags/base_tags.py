@@ -37,5 +37,7 @@ def title(
     site_name = getattr(settings, "SITE_NAME", "").strip()
     title = name or context.get("page_title")
 
-    full_title = f"{title}{separator}{site_name}" if title else site_name
+    full_title = (
+        f"{title}{separator if site_name else ''}{site_name}" if title else site_name
+    )
     return mark_safe(f"<title>{full_title}</title>")
