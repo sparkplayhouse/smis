@@ -211,7 +211,7 @@ class Command(BaseCommand):
 
     def status(self):
         """Check Tailwind CSS setup status."""
-        self.stdout.write(self.style.MIGRATE_HEADING("Djanx Tailwind CSS Setup Status"))
+        self.stdout.write(self.style.MIGRATE_HEADING("DjanX Tailwind CSS Setup Status"))
         self.stdout.write("-" * 50)
 
         # Check tailwind directory
