@@ -1,6 +1,7 @@
 from django import template
 from django.conf import settings
 from django.template import Context
+from django.templatetags.static import static
 from django.utils.safestring import SafeString, mark_safe
 
 register = template.Library()
@@ -41,3 +42,33 @@ def title(
         f"{title}{separator if site_name else ''}{site_name}" if title else site_name
     )
     return mark_safe(f"<title>{full_title}</title>")
+
+
+@register.simple_tag
+def tailwindcss() -> SafeString:
+    """
+    Generate a <link> tag for Tailwind CSS.
+
+    Returns:
+        SafeString containing the HTML <link> tag for Tailwind CSS
+
+    Usage:
+        {% tailwindcss %}
+    """
+    css_path = static("djanx/base/tailwind/output.css")
+    return mark_safe(f'<link rel="stylesheet" href="{css_path}">')
+
+
+@register.simple_tag
+def alpinejs() -> SafeString:
+    """
+    Generate a <script> tag for Alpine.js with defer attribute.
+
+    Returns:
+        SafeString containing the HTML <script> tag for Alpine.js
+
+    Usage:
+        {% alpinejs %}
+    """
+    js_path = static("djanx/base/alpinejs/cdn.min.js")
+    return mark_safe(f'<script src="{js_path}" defer></script>')
