@@ -7,7 +7,9 @@ register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def title(context: Context, title: str | None = None, separator: str = " | ") -> SafeString:
+def title(
+    context: Context, title: str | None = None, separator: str = " | "
+) -> SafeString:
     """
     Generate a complete HTML `<title>` tag combining page title and site name.
 
