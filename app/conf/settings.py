@@ -3,9 +3,14 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir or file'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+# Tailwind CSS configuration file path
 TAILWIND_CSS_CONFIG = BASE_DIR / "tailwind.config.css"
 
-# Application definition
+
+# ==============================================================================
+# APPLICATION DEFINITION
+# ==============================================================================
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "djanx.adminx",
@@ -48,26 +53,43 @@ TEMPLATES = [
 WSGI_APPLICATION = "app.conf.wsgi.application"
 
 
-# Database
+# ==============================================================================
+# DATABASE CONFIGURATION
+# ==============================================================================
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
+
 DATABASES = {
-    "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
 }
 
 
-# Password validation
+# ==============================================================================
+# PASSWORD VALIDATION
+# ==============================================================================
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
+
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
 ]
 
 
-# Internationalization
+# ==============================================================================
+# INTERNATIONALIZATION
+# ==============================================================================
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
@@ -79,12 +101,18 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static (CSS, JavaScript, Images) & Media(User-uploaded content) assets
+# ==============================================================================
+# STATIC & MEDIA FILES
+# ==============================================================================
+# Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
+#
+# Media files (User-uploaded content)
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-files
 
 ASSETS_DIR = BASE_DIR / "app" / "assets"
 
+# Ensure assets directory exists
 ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Create a .gitignore file in the assets directory to ignore its contents
@@ -97,10 +125,10 @@ if not gitignore_path.exists():
         "*\n"
     )
 
+# Static files configuration
 STATIC_URL = "app/assets/static/"
-
 STATIC_ROOT = ASSETS_DIR / "static"
 
+# Media files configuration
 MEDIA_URL = "app/assets/media/"
-
 MEDIA_ROOT = ASSETS_DIR / "media"
