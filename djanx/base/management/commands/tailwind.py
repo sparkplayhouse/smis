@@ -87,6 +87,15 @@ class Command(BaseCommand):
         """
         return shutil.which("npm")
 
+    def _get_npx_command(self):
+        """
+        Find and return the npx command.
+
+        Returns the full path to npx if found in PATH, otherwise None.
+        Users should ensure npx is in their system PATH.
+        """
+        return shutil.which("npx")
+
     def _check_npm(self):
         """Check if npm is available and store the command."""
         npm_command = self._get_npm_command()
@@ -110,6 +119,31 @@ class Command(BaseCommand):
         except subprocess.CalledProcessError as e:
             raise CommandError(
                 f"npm found at '{npm_command}' but failed to execute.\nError: {str(e)}"
+            )
+
+    def _check_npx(self):
+        """Check if npx is available and store the command."""
+        npx_command = self._get_npx_command()
+
+        if not npx_command:
+            raise CommandError(
+                "npx not found in PATH. Please ensure Node.js and npm are installed "
+                "and added to your system PATH.\n"
+                "Visit: https://nodejs.org/\n\n"
+                "After installation, you may need to:\n"
+                "  - Restart your terminal/IDE\n"
+                "  - Add npx to your PATH environment variable\n"
+                f"  - Current OS: {platform.system()}"
+            )
+
+        self.npx_command = npx_command
+
+        # Verify it works
+        try:
+            subprocess.run([npx_command, "--version"], capture_output=True, check=True)
+        except subprocess.CalledProcessError as e:
+            raise CommandError(
+                f"npx found at '{npx_command}' but failed to execute.\nError: {str(e)}"
             )
 
     def _ensure_node_modules(self):
@@ -161,7 +195,7 @@ class Command(BaseCommand):
     def watch(self):
         """Run Tailwind CSS in development/watch mode."""
         self._validate_setup()
-        self._check_npm()
+        self._check_npx()
         self._ensure_node_modules()
 
         self.stdout.write("Starting Tailwind CSS in watch mode...")
@@ -169,24 +203,42 @@ class Command(BaseCommand):
 
         try:
             subprocess.run(
-                [self.npm_command, "run", "watch"], cwd=self.tailwind_dir, check=True
+                [
+                    self.npx_command,
+                    "@tailwindcss/cli",
+                    "-i",
+                    "./input.css",
+                    "-o",
+                    "./output.css",
+                    "--watch",
+                ],
+                cwd=self.tailwind_dir,
+                check=True,
             )
         except KeyboardInterrupt:
             self.stdout.write("\nStopped Tailwind CSS watch mode")
         except subprocess.CalledProcessError:
-            raise CommandError("npm run watch failed")
+            raise CommandError("Tailwind CSS watch failed")
 
     def build(self):
         """Build Tailwind CSS for production."""
         self._validate_setup()
-        self._check_npm()
+        self._check_npx()
         self._ensure_node_modules()
 
         self.stdout.write("Building Tailwind CSS for production...")
 
         try:
             result = subprocess.run(
-                [self.npm_command, "run", "build"],
+                [
+                    self.npx_command,
+                    "@tailwindcss/cli",
+                    "-i",
+                    "./input.css",
+                    "-o",
+                    "./output.css",
+                    "--minify",
+                ],
                 cwd=self.tailwind_dir,
                 capture_output=True,
                 text=True,
@@ -207,7 +259,7 @@ class Command(BaseCommand):
         except subprocess.CalledProcessError as e:
             self.stdout.write(self.style.ERROR("✗ Build failed"))
             self.stdout.write(e.stderr)
-            raise CommandError("npm run build failed")
+            raise CommandError("Tailwind CSS build failed")
 
     def status(self):
         """Check Tailwind CSS setup status."""
@@ -259,6 +311,32 @@ class Command(BaseCommand):
         else:
             self.stdout.write(
                 self.style.ERROR(f"✗ npm not found in PATH (OS: {platform.system()})")
+            )
+
+        # Check npx availability
+        npx_command = self._get_npx_command()
+        if npx_command:
+            try:
+                result = subprocess.run(
+                    [npx_command, "--version"],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f"✓ npx version: {result.stdout.strip()} (at {npx_command})"
+                    )
+                )
+            except subprocess.CalledProcessError:
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"⚠ npx found at {npx_command} but failed to execute"
+                    )
+                )
+        else:
+            self.stdout.write(
+                self.style.ERROR(f"✗ npx not found in PATH (OS: {platform.system()})")
             )
 
         # Check node_modules

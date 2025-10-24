@@ -1,8 +1,7 @@
 {
   "name": "djanx-tailwindcss",
   "scripts": {
-    "watch": "npx @tailwindcss/cli -i ./input.css -o ./output.css --watch",
-    "build": "npx @tailwindcss/cli -i ./input.css -o ./output.css --minify"
+    "update": "npx npm-check-updates -u && npm install"
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.1.16",
