@@ -4,7 +4,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Tailwind CSS configuration file path
-TAILWIND_CSS_CONFIG = BASE_DIR / "tailwind.config.css"
+TAILWIND_CSS_CONFIG = BASE_DIR / "app" / "conf" / "tailwind.css"
 
 
 # ==============================================================================
