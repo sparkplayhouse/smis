@@ -20,7 +20,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "djanx.base",
-    "app.home",
+    "app.main",
 ]
 
 MIDDLEWARE = [
