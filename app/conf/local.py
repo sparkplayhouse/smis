@@ -2,7 +2,7 @@ from split_settings.tools import include
 from pathlib import Path
 
 # Include settings segments
-SPLIT = Path(__file__).parent / "split_settings"
+SPLIT = Path(__file__).parent / "settings"
 
 include(
     str(SPLIT / "main.py"),  # Load main settings first
