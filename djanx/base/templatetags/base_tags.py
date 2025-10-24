@@ -8,7 +8,7 @@ register = template.Library()
 
 @register.simple_tag(takes_context=True)
 def title(
-    context: Context, title: str | None = None, separator: str = " | "
+    context: Context, name: str | None = None, separator: str = " | "
 ) -> SafeString:
     """
     Generate a complete HTML `<title>` tag combining page title and site name.
@@ -19,7 +19,7 @@ def title(
 
     Args:
         context: Django template context (automatically passed)
-        title: Optional page title. If not provided, uses context['page_title']
+        name: Optional page title. If not provided, uses context['page_title']
         separator: String to separate page title and site name (default: " | ")
 
     Returns:
@@ -35,7 +35,7 @@ def title(
         Requires SITE_NAME setting to be set for the site name portion.
     """
     site_name = getattr(settings, "SITE_NAME", "").strip()
-    title = title or context.get("page_title")
+    title = name or context.get("page_title")
 
     full_title = f"{title}{separator}{site_name}" if title else site_name
     return mark_safe(f"<title>{full_title}</title>")

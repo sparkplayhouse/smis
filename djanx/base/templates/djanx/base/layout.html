@@ -1,0 +1,15 @@
+{% load base_tags %}
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% title name="The Spark Playhouse" %}    
+    <script src="{% static 'djanx/base/vendors/alpinejs/cdn.min.js' %}" defer></script>
+  </head>
+  <body>
+    {% block main %}
+    {% endblock main %}
+  </body>
+</html>

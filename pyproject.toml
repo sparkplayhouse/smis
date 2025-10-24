@@ -12,3 +12,8 @@ dependencies = [
     # User specific
     "gunicorn>=23.0.0",
 ]
+
+[dependency-groups]
+dev = [
+    "djlint>=1.36.4",
+]
