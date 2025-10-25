@@ -10,7 +10,7 @@ APP_DIR = BASE_DIR / "app"
 
 # Tailwind CSS configuration file path
 
-TAILWIND_CONFIG_CSS = APP_DIR / "conf" / "tailwind.config.css"
+TAILWIND_CONFIG_CSS = APP_DIR / "config" / "tailwind.css"
 
 
 # ==============================================================================
@@ -40,7 +40,7 @@ MIDDLEWARE = [
     "django.middleware.csp.ContentSecurityPolicyMiddleware",
 ]
 
-ROOT_URLCONF = "app.conf.urls"
+ROOT_URLCONF = "app.config.urls"
 
 TEMPLATES = [
     {
@@ -58,7 +58,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "app.conf.wsgi.application"
+WSGI_APPLICATION = "app.config.wsgi.application"
 
 
 # ==============================================================================

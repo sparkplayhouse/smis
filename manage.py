@@ -8,8 +8,8 @@ import sys
 def main():
     """Run administrative tasks."""
 
-    # Unlike app/conf/asgi.py and app/conf/wsgi.py, manage.py uses development settings by default.
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "app.conf.development")
+    # Unlike asgi.py and wsgi.py, manage.py uses development settings by default.
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "app.config.dev")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

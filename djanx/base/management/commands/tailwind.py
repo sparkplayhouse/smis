@@ -73,7 +73,7 @@ class Command(BaseCommand):
             raise CommandError(
                 "TAILWIND_CONFIG_CSS setting is not defined in your Django settings.\n"
                 "Please add it to your settings file, for example:\n"
-                "TAILWIND_CONFIG_CSS = BASE_DIR / 'app' / 'conf' / 'tailwind.config.css'"
+                "TAILWIND_CONFIG_CSS = BASE_DIR / 'app' / 'config' / 'tailwind.css'"
             )
 
         config_setting = settings.TAILWIND_CONFIG_CSS
@@ -114,7 +114,7 @@ class Command(BaseCommand):
 
     def _copy_config_to_build_dir(self, source_config):
         """Copy the tailwind config css file to build directory."""
-        dest_config = self.build_dir / "tailwind.config.css"
+        dest_config = self.build_dir / "tailwind.conf.css"
 
         try:
             # Check if source and destination are the same file

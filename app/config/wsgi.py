@@ -12,6 +12,6 @@ import os
 from django.core.wsgi import get_wsgi_application
 
 # Unlike manage.py, wsgi.py uses production settings by default.
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "app.conf.production")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "app.config.prod")
 
 application = get_wsgi_application()
