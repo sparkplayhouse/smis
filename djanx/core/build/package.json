@@ -1,10 +1,14 @@
 {
-  "name": "djanx-base",
+  "name": "djanx-core",
   "scripts": {
     "update": "npx npm-check-updates -u && npm install"
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.1.16",
     "tailwindcss": "^4.1.16"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.7.1"
   }
 }

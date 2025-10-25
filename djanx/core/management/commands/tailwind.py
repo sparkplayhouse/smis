@@ -45,15 +45,15 @@ class Command(BaseCommand):
         subparsers.add_parser("status", help="Check Tailwind CSS setup status")
 
     def handle(self, *args, **options):
-        base_app_dir = Path(__file__).resolve().parent.parent.parent
+        core_app_dir = Path(__file__).resolve().parent.parent.parent
 
         # Where the Tailwind config CSS file will be copied to
         # and where npm commands will be executed from
-        self.build_dir = base_app_dir / "build"
+        self.build_dir = core_app_dir / "build"
 
         # Output file path - the complete path to the final compiled CSS file
         self.output_css_path = (
-            base_app_dir / "static" / "djanx" / "base" / "tailwind.min.css"
+            core_app_dir / "static" / "djanx" / "core" / "tailwind.min.css"
         )
 
         subcommand = options["subcommand"]

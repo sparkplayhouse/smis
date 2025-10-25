@@ -1,4 +1,4 @@
-# djanX base static
+# djanX core static
 
 This folder contains static assets for the project. Below are the sources for each asset:
 
