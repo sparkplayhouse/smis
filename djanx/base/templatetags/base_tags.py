@@ -55,8 +55,8 @@ def tailwindcss() -> SafeString:
     Usage:
         {% tailwindcss %}
     """
-    css_path = static("djanx/base/tailwind/output.css")
-    return mark_safe(f'<link rel="stylesheet" href="{css_path}">')
+    path = static("djanx/base/tailwind/output.min.css")
+    return mark_safe(f'<link rel="stylesheet" href="{path}">')
 
 
 @register.simple_tag
@@ -70,5 +70,5 @@ def alpinejs() -> SafeString:
     Usage:
         {% alpinejs %}
     """
-    js_path = static("djanx/base/alpinejs/cdn.min.js")
-    return mark_safe(f'<script src="{js_path}" defer></script>')
+    path = static("djanx/base/alpinejs/cdn.min.js")
+    return mark_safe(f'<script src="{path}" defer></script>')
