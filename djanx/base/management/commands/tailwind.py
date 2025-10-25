@@ -42,7 +42,7 @@ class Command(BaseCommand):
             "build", help="Build Tailwind CSS for production (minified)"
         )
 
-        subparsers.add_parser("status", help="Check npm setup status")
+        subparsers.add_parser("status", help="Check Tailwind CSS setup status")
 
     def handle(self, *args, **options):
         base_app_dir = Path(__file__).resolve().parent.parent.parent
@@ -335,48 +335,6 @@ class Command(BaseCommand):
         self.stdout.write(self.style.MIGRATE_HEADING("DjanX Tailwind CSS Setup Status"))
         self.stdout.write("-" * 50)
 
-        # Check if the Tailwind input static_src directory exists
-        if self.tailwind_input_dir.exists():
-            self.stdout.write(
-                self.style.SUCCESS(
-                    f"✓ Tailwind input directory: {self.tailwind_input_dir}"
-                )
-            )
-        else:
-            self.stdout.write(
-                self.style.ERROR(
-                    f"✗ Tailwind input directory not found: {self.tailwind_input_dir}"
-                )
-            )
-            return
-
-        # Check if the Tailwind output directory exists (extracted from output file path)
-        output_dir = self.output_css_path.parent
-        if output_dir.exists():
-            self.stdout.write(
-                self.style.SUCCESS(f"✓ Tailwind output directory: {output_dir}")
-            )
-        else:
-            self.stdout.write(
-                self.style.WARNING(
-                    f"⚠ Tailwind output directory not found: {output_dir}"
-                )
-            )
-
-        # Check if package.json exists and display its name
-        package_json = self.tailwind_input_dir / "package.json"
-        if package_json.exists():
-            self.stdout.write(self.style.SUCCESS("✓ package.json found"))
-        else:
-            self.stdout.write(self.style.ERROR("✗ package.json not found"))
-
-        # Validate Tailwind CSS config setting and file existence
-        try:
-            self._validate_tailwind_config()
-        except CommandError as e:
-            self.stdout.write(self.style.ERROR("✗ TAILWIND_CSS_CONFIG issue:"))
-            self.stdout.write(f"  {str(e)}")
-
         # Check if npm is available and get its version
         npm_command = self._get_npm_command()
         if npm_command:
@@ -429,19 +387,12 @@ class Command(BaseCommand):
                 self.style.ERROR(f"✗ npx not found in PATH (OS: {platform.system()})")
             )
 
-        # Check if node_modules directory exists and count packages
-        node_modules = self.tailwind_input_dir / "node_modules"
-        if node_modules.exists():
-            num_packages = len(list(node_modules.iterdir()))
-            self.stdout.write(
-                self.style.SUCCESS(f"✓ node_modules exists ({num_packages} items)")
-            )
-        else:
-            self.stdout.write(
-                self.style.WARNING(
-                    "⚠ node_modules not found (run: python manage.py tailwind install)"
-                )
-            )
+        # Validate Tailwind CSS config setting and file existence
+        try:
+            self._validate_tailwind_config()
+        except CommandError as e:
+            self.stdout.write(self.style.ERROR("✗ TAILWIND_CSS_CONFIG issue:"))
+            self.stdout.write(f"  {str(e)}")
 
         # Check if the compiled output CSS file exists
         if self.output_css_path.exists():
