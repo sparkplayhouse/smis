@@ -3,10 +3,14 @@ from pathlib import Path
 from django.utils.csp import CSP
 
 # Build paths inside the project like this: BASE_DIR / 'subdir or file'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+APP_DIR = BASE_DIR / "app"
+
 # Tailwind CSS configuration file path
-TAILWIND_CONFIG_CSS = BASE_DIR / "app" / "conf" / "tailwind.config.css"
+
+TAILWIND_CONFIG_CSS = APP_DIR / "conf" / "tailwind.config.css"
 
 
 # ==============================================================================
@@ -108,18 +112,15 @@ USE_TZ = True
 # ==============================================================================
 # STATIC & MEDIA FILES
 # ==============================================================================
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/dev/howto/static-files/
-#
-# Media files (User-uploaded content)
-# https://docs.djangoproject.com/en/dev/ref/settings/#media-files
 
-ASSETS_DIR = BASE_DIR / "app" / "assets"
+ASSETS_DIR = APP_DIR / "assets"
 
 # Ensure assets directory exists
+
 ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Create a .gitignore file in the assets directory to ignore its contents
+
 gitignore_path = ASSETS_DIR / ".gitignore"
 if not gitignore_path.exists():
     gitignore_path.write_text(
@@ -130,12 +131,18 @@ if not gitignore_path.exists():
         "*"
     )
 
-# Static files configuration
-STATIC_URL = "app/assets/static/"
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/dev/howto/static-files/
+
+STATIC_URL = "assets/static/"
+
 STATIC_ROOT = ASSETS_DIR / "static"
 
-# Media files configuration
-MEDIA_URL = "app/assets/media/"
+# Media files (User-uploaded content)
+# https://docs.djangoproject.com/en/dev/ref/settings/#media-files
+
+MEDIA_URL = "assets/media/"
+
 MEDIA_ROOT = ASSETS_DIR / "media"
 
 
