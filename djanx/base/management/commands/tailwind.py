@@ -3,7 +3,6 @@ Django management command for managing Tailwind CSS.
 
 Usage:
     python manage.py tailwind install [--force]
-    python manage.py tailwind watch
     python manage.py tailwind build
     python manage.py tailwind status
 """
@@ -35,10 +34,6 @@ class Command(BaseCommand):
         )
 
         subparsers.add_parser(
-            "watch", help="Run Tailwind CSS in development mode (minified with watch)"
-        )
-
-        subparsers.add_parser(
             "build", help="Build Tailwind CSS for production (minified)"
         )
 
@@ -61,8 +56,6 @@ class Command(BaseCommand):
         match subcommand:
             case "install":
                 self.install(options.get("force", False))
-            case "watch":
-                self.watch()
             case "build":
                 self.build()
             case "status":
@@ -254,38 +247,6 @@ class Command(BaseCommand):
             self.stdout.write(e.stderr)
             raise CommandError("npm install failed")
 
-    def watch(self):
-        """Run Tailwind CSS in development/watch mode."""
-        self._validate_setup()
-        source_config = self._validate_tailwind_config()
-        self._check_npx()
-        self._ensure_node_modules()
-        local_config = self._copy_config_to_tailwind_dir(source_config)
-
-        self.stdout.write("Starting Tailwind CSS in watch mode...")
-        self.stdout.write(f"Output: {self.output_css_path}")
-        self.stdout.write("Press Ctrl+C to stop")
-
-        try:
-            subprocess.run(
-                [
-                    self.npx_command,
-                    "@tailwindcss/cli",
-                    "-i",
-                    str(local_config.name),
-                    "-o",
-                    str(self.output_css_path),
-                    "--minify",
-                    "--watch",
-                ],
-                cwd=self.tailwind_input_dir,
-                check=True,
-            )
-        except KeyboardInterrupt:
-            self.stdout.write("\nStopped Tailwind CSS watch mode")
-        except subprocess.CalledProcessError:
-            raise CommandError("Tailwind CSS watch failed")
-
     def build(self):
         """Build Tailwind CSS for production."""
         self._validate_setup()
@@ -406,6 +367,6 @@ class Command(BaseCommand):
             self.stdout.write(
                 self.style.WARNING(
                     f"⚠ Output CSS not found: {self.output_css_path}\n"
-                    "  (run: python manage.py tailwind [watch / build])"
+                    "  (run: python manage.py tailwind build)"
                 )
             )
