@@ -70,5 +70,5 @@ def alpinejs() -> SafeString:
     Usage:
         {% alpinejs %}
     """
-    path = static("djanx/base/alpinejs/cdn.min.js")
+    path = static("djanx/base/@alpinejs/csp/cdn.min.js")
     return mark_safe(f'<script src="{path}" defer></script>')

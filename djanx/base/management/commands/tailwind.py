@@ -24,27 +24,32 @@ class Command(BaseCommand):
             dest="subcommand", help="Available subcommands", required=True
         )
 
+        # install subcommand
         install_parser = subparsers.add_parser(
-            "install", help="Install npm dependencies"
+            "install", help="Install tailwind dependencies"
         )
+
+        # install --force option to reinstall
         install_parser.add_argument(
             "--force",
             action="store_true",
             help="Force reinstall by removing node_modules first",
         )
 
+        # build subcommand
         subparsers.add_parser(
             "build", help="Build Tailwind CSS for production (minified)"
         )
 
+        # status subcommand
         subparsers.add_parser("status", help="Check Tailwind CSS setup status")
 
     def handle(self, *args, **options):
         base_app_dir = Path(__file__).resolve().parent.parent.parent
 
-        # Input directory - where the Tailwind config CSS file will be copied to
+        # Where the Tailwind config CSS file will be copied to
         # and where npm commands will be executed from
-        self.tailwind_input_dir = base_app_dir / "static_src" / "tailwind"
+        self.tailwind_dir = base_app_dir / "tailwind"
 
         # Output file path - the complete path to the final compiled CSS file
         self.output_css_path = (
@@ -61,16 +66,7 @@ class Command(BaseCommand):
             case "status":
                 self.status()
 
-    def _validate_setup(self):
-        """Validate that the tailwind directory and package.json exist."""
-        if not self.tailwind_input_dir.exists():
-            raise CommandError(f"Directory does not exist: {self.tailwind_input_dir}")
-
-        package_json = self.tailwind_input_dir / "package.json"
-        if not package_json.exists():
-            raise CommandError(f"package.json not found in {self.tailwind_input_dir}")
-
-    def _validate_tailwind_config(self):
+    def _validate_TAILWIND_CSS_CONFIG_setting(self):
         """Validate that TAILWIND_CSS_CONFIG setting is configured and the file exists."""
         # Check if setting exists
         if not hasattr(settings, "TAILWIND_CSS_CONFIG"):
@@ -118,7 +114,7 @@ class Command(BaseCommand):
 
     def _copy_config_to_tailwind_dir(self, source_config):
         """Copy the config file to tailwind directory for Tailwind CSS v4."""
-        dest_config = self.tailwind_input_dir / "input.css"
+        dest_config = self.tailwind_dir / "config.css"
 
         try:
             # Check if source and destination are the same file
@@ -201,62 +197,52 @@ class Command(BaseCommand):
 
     def _ensure_node_modules(self):
         """Ensure node_modules exists, install if not."""
-        node_modules = self.tailwind_input_dir / "node_modules"
+        node_modules = self.tailwind_dir / "node_modules"
         if not node_modules.exists():
-            self.stdout.write(
-                self.style.WARNING(
-                    "node_modules not found. Running npm install first..."
-                )
-            )
             self.install(force=False)
 
     def install(self, force=False):
-        """Install npm dependencies."""
-        self._validate_setup()
+        """Install tailwind dependencies."""
         self._check_npm()
 
         # Remove node_modules if --force flag is used
         if force:
-            node_modules = self.tailwind_input_dir / "node_modules"
+            node_modules = self.tailwind_dir / "node_modules"
             if node_modules.exists():
                 self.stdout.write("Removing existing node_modules...")
                 shutil.rmtree(node_modules)
 
-        self.stdout.write(
-            f"Installing npm dependencies in {self.tailwind_input_dir}..."
-        )
+        self.stdout.write("Installing tailwind dependencies...")
 
         try:
             result = subprocess.run(
                 [self.npm_command, "install"],
-                cwd=self.tailwind_input_dir,
+                cwd=self.tailwind_dir,
                 capture_output=True,
                 text=True,
                 check=True,
             )
 
             self.stdout.write(
-                self.style.SUCCESS("✓ npm install completed successfully")
+                self.style.SUCCESS("✓ tailwind install completed successfully")
             )
 
             if result.stdout:
                 self.stdout.write(result.stdout)
 
         except subprocess.CalledProcessError as e:
-            self.stdout.write(self.style.ERROR("✗ npm install failed"))
+            self.stdout.write(self.style.ERROR("✗ tailwind install failed"))
             self.stdout.write(e.stderr)
-            raise CommandError("npm install failed")
+            raise CommandError("tailwind install failed")
 
     def build(self):
         """Build Tailwind CSS for production."""
-        self._validate_setup()
-        source_config = self._validate_tailwind_config()
+        source_config = self._validate_TAILWIND_CSS_CONFIG_setting()
         self._check_npx()
         self._ensure_node_modules()
         local_config = self._copy_config_to_tailwind_dir(source_config)
 
         self.stdout.write("Building Tailwind CSS for production...")
-        self.stdout.write(f"Output: {self.output_css_path}")
 
         try:
             result = subprocess.run(
@@ -269,7 +255,7 @@ class Command(BaseCommand):
                     str(self.output_css_path),
                     "--minify",
                 ],
-                cwd=self.tailwind_input_dir,
+                cwd=self.tailwind_dir,
                 capture_output=True,
                 text=True,
                 check=True,
@@ -349,24 +335,27 @@ class Command(BaseCommand):
             )
 
         # Validate Tailwind CSS config setting and file existence
+        config_valid = True
         try:
-            self._validate_tailwind_config()
+            self._validate_TAILWIND_CSS_CONFIG_setting()
         except CommandError as e:
+            config_valid = False
             self.stdout.write(self.style.ERROR("✗ TAILWIND_CSS_CONFIG issue:"))
             self.stdout.write(f"  {str(e)}")
 
         # Check if the compiled output CSS file exists
-        if self.output_css_path.exists():
-            size = self.output_css_path.stat().st_size / 1024
-            self.stdout.write(
-                self.style.SUCCESS(
-                    f"✓ Output CSS: {self.output_css_path} ({size:.2f} KB)"
+        # Only check for output file if config validation passed
+        if config_valid:
+            if self.output_css_path.exists():
+                size = self.output_css_path.stat().st_size / 1024
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f"✓ Output CSS: {self.output_css_path} ({size:.2f} KB)"
+                    )
                 )
-            )
-        else:
-            self.stdout.write(
-                self.style.WARNING(
-                    f"⚠ Output CSS not found: {self.output_css_path}\n"
-                    "  (run: python manage.py tailwind build)"
+            else:
+                self.stdout.write(
+                    self.style.WARNING(
+                        "⚠ Output CSS not found\n(run: python manage.py tailwind build)"
+                    )
                 )
-            )
