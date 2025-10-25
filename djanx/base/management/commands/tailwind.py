@@ -8,7 +8,6 @@ Usage:
     python manage.py tailwind status
 """
 
-import json
 import platform
 import shutil
 import subprocess
@@ -47,9 +46,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         base_app_dir = Path(__file__).resolve().parent.parent.parent
+
+        # Input directory - where the Tailwind config CSS file will be copied to
+        # and where npm commands will be executed from
         self.tailwind_input_dir = base_app_dir / "static_src" / "tailwind"
-        self.tailwind_output_dir = (
-            base_app_dir / "static" / "djanx" / "base" / "tailwind"
+
+        # Output file path - the complete path to the final compiled CSS file
+        self.output_css_path = (
+            base_app_dir / "static" / "djanx" / "base" / "tailwind" / "output.min.css"
         )
 
         subcommand = options["subcommand"]
@@ -258,10 +262,8 @@ class Command(BaseCommand):
         self._ensure_node_modules()
         local_config = self._copy_config_to_tailwind_dir(source_config)
 
-        output_css = self.tailwind_output_dir / "output.min.css"
-
         self.stdout.write("Starting Tailwind CSS in watch mode...")
-        self.stdout.write(f"Output: {output_css}")
+        self.stdout.write(f"Output: {self.output_css_path}")
         self.stdout.write("Press Ctrl+C to stop")
 
         try:
@@ -272,7 +274,7 @@ class Command(BaseCommand):
                     "-i",
                     str(local_config.name),
                     "-o",
-                    str(output_css),
+                    str(self.output_css_path),
                     "--minify",
                     "--watch",
                 ],
@@ -292,10 +294,8 @@ class Command(BaseCommand):
         self._ensure_node_modules()
         local_config = self._copy_config_to_tailwind_dir(source_config)
 
-        output_css = self.tailwind_output_dir / "output.min.css"
-
         self.stdout.write("Building Tailwind CSS for production...")
-        self.stdout.write(f"Output: {output_css}")
+        self.stdout.write(f"Output: {self.output_css_path}")
 
         try:
             result = subprocess.run(
@@ -305,7 +305,7 @@ class Command(BaseCommand):
                     "-i",
                     str(local_config.name),
                     "-o",
-                    str(output_css),
+                    str(self.output_css_path),
                     "--minify",
                 ],
                 cwd=self.tailwind_input_dir,
@@ -316,9 +316,11 @@ class Command(BaseCommand):
 
             self.stdout.write(self.style.SUCCESS("✓ Tailwind CSS build completed"))
 
-            if output_css.exists():
-                size = output_css.stat().st_size / 1024
-                self.stdout.write(f"Output file: {output_css} ({size:.2f} KB)")
+            if self.output_css_path.exists():
+                size = self.output_css_path.stat().st_size / 1024
+                self.stdout.write(
+                    f"Output file: {self.output_css_path} ({size:.2f} KB)"
+                )
 
             if result.stdout:
                 self.stdout.write(result.stdout)
@@ -333,51 +335,49 @@ class Command(BaseCommand):
         self.stdout.write(self.style.MIGRATE_HEADING("DjanX Tailwind CSS Setup Status"))
         self.stdout.write("-" * 50)
 
+        # Check if the Tailwind input static_src directory exists
         if self.tailwind_input_dir.exists():
             self.stdout.write(
                 self.style.SUCCESS(
-                    f"✓ Tailwind src directory: {self.tailwind_input_dir}"
+                    f"✓ Tailwind input directory: {self.tailwind_input_dir}"
                 )
             )
         else:
             self.stdout.write(
                 self.style.ERROR(
-                    f"✗ Tailwind src directory not found: {self.tailwind_input_dir}"
+                    f"✗ Tailwind input directory not found: {self.tailwind_input_dir}"
                 )
             )
             return
 
-        if self.tailwind_output_dir.exists():
+        # Check if the Tailwind output directory exists (extracted from output file path)
+        output_dir = self.output_css_path.parent
+        if output_dir.exists():
             self.stdout.write(
-                self.style.SUCCESS(
-                    f"✓ Tailwind output directory: {self.tailwind_output_dir}"
-                )
+                self.style.SUCCESS(f"✓ Tailwind output directory: {output_dir}")
             )
         else:
             self.stdout.write(
                 self.style.WARNING(
-                    f"⚠ Tailwind output directory not found: {self.tailwind_output_dir}"
+                    f"⚠ Tailwind output directory not found: {output_dir}"
                 )
             )
 
+        # Check if package.json exists and display its name
         package_json = self.tailwind_input_dir / "package.json"
         if package_json.exists():
             self.stdout.write(self.style.SUCCESS("✓ package.json found"))
-            with open(package_json, "r") as f:
-                data = json.load(f)
-                self.stdout.write(f"  Name: {data.get('name', 'N/A')}")
         else:
             self.stdout.write(self.style.ERROR("✗ package.json not found"))
 
+        # Validate Tailwind CSS config setting and file existence
         try:
-            config_path = self._validate_tailwind_config()
-            self.stdout.write(
-                self.style.SUCCESS(f"✓ TAILWIND_CSS_CONFIG: {config_path}")
-            )
+            self._validate_tailwind_config()
         except CommandError as e:
             self.stdout.write(self.style.ERROR("✗ TAILWIND_CSS_CONFIG issue:"))
             self.stdout.write(f"  {str(e)}")
 
+        # Check if npm is available and get its version
         npm_command = self._get_npm_command()
         if npm_command:
             try:
@@ -403,6 +403,7 @@ class Command(BaseCommand):
                 self.style.ERROR(f"✗ npm not found in PATH (OS: {platform.system()})")
             )
 
+        # Check if npx is available and get its version
         npx_command = self._get_npx_command()
         if npx_command:
             try:
@@ -428,6 +429,7 @@ class Command(BaseCommand):
                 self.style.ERROR(f"✗ npx not found in PATH (OS: {platform.system()})")
             )
 
+        # Check if node_modules directory exists and count packages
         node_modules = self.tailwind_input_dir / "node_modules"
         if node_modules.exists():
             num_packages = len(list(node_modules.iterdir()))
@@ -441,16 +443,18 @@ class Command(BaseCommand):
                 )
             )
 
-        output_css = self.tailwind_output_dir / "output.css"
-        if output_css.exists():
-            size = output_css.stat().st_size / 1024
+        # Check if the compiled output CSS file exists
+        if self.output_css_path.exists():
+            size = self.output_css_path.stat().st_size / 1024
             self.stdout.write(
-                self.style.SUCCESS(f"✓ Output CSS exists: {output_css} ({size:.2f} KB)")
+                self.style.SUCCESS(
+                    f"✓ Output CSS: {self.output_css_path} ({size:.2f} KB)"
+                )
             )
         else:
             self.stdout.write(
                 self.style.WARNING(
-                    f"⚠ Output CSS not found at: {output_css}\n"
+                    f"⚠ Output CSS not found: {self.output_css_path}\n"
                     "  (run: python manage.py tailwind [watch / build])"
                 )
             )
