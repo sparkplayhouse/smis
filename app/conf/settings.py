@@ -26,7 +26,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "djanx.base",
-    "app.pages",
+    "app.main",
 ]
 
 MIDDLEWARE = [

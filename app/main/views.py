@@ -2,7 +2,7 @@ from django.views.generic import TemplateView
 
 
 class Page(TemplateView):
-    template_name = "pages/main.html"
+    template_name = "main/page.html"
 
 
 class Home(Page):
