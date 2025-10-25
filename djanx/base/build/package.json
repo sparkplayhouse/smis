@@ -1,5 +1,5 @@
 {
-  "name": "djanx-tailwindcss",
+  "name": "djanx-base",
   "scripts": {
     "update": "npx npm-check-updates -u && npm install"
   },

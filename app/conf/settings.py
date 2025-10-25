@@ -1,11 +1,12 @@
 from pathlib import Path
+
 from django.utils.csp import CSP
 
 # Build paths inside the project like this: BASE_DIR / 'subdir or file'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Tailwind CSS configuration file path
-TAILWIND_CSS_CONFIG = BASE_DIR / "app" / "conf" / "tailwind.config.css"
+TAILWIND_CONFIG_CSS = BASE_DIR / "app" / "conf" / "tailwind.config.css"
 
 
 # ==============================================================================
