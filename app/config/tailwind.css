@@ -1,1 +1,3 @@
+/* * Build Tailwind CSS using: uv run python manage.py tailwind build */
+
 @import "tailwindcss";

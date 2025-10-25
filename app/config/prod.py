@@ -4,15 +4,15 @@ from pathlib import Path
 from decouple import config, Csv
 from split_settings.tools import include
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# ! SECURITY WARNING: don't run with debug turned on in production!
 
 DEBUG = False
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# ! SECURITY WARNING: keep the secret key used in production secret!
 
 SECRET_KEY = config("SECRET_KEY")
 
-# Allowed hosts in production
+# ! SECURITY WARNING: explicitly define which hosts the application can serve in production!
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
