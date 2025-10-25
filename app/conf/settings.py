@@ -1,4 +1,5 @@
 from pathlib import Path
+from django.utils.csp import CSP
 
 # Build paths inside the project like this: BASE_DIR / 'subdir or file'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -31,6 +32,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.csp.ContentSecurityPolicyMiddleware",
 ]
 
 ROOT_URLCONF = "app.conf.urls"
@@ -45,6 +47,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.csp",
             ],
         },
     },
@@ -133,3 +136,17 @@ STATIC_ROOT = ASSETS_DIR / "static"
 # Media files configuration
 MEDIA_URL = "app/assets/media/"
 MEDIA_ROOT = ASSETS_DIR / "media"
+
+
+# ==============================================================================
+# CONTENT SECURITY POLICY (CSP) SETTINGS
+# ==============================================================================
+# https://docs.djangoproject.com/en/dev/howto/csp/
+
+SECURE_CSP = {
+    "default-src": [CSP.SELF],
+    # Allow self-hosted scripts and script tags with matching `nonce` attr.
+    "script-src": [CSP.SELF, CSP.NONCE],
+    # Example of the less secure 'unsafe-inline' option.
+    "style-src": [CSP.SELF, CSP.UNSAFE_INLINE],
+}
