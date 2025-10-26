@@ -11,7 +11,8 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-# Unlike manage.py, asgi.py uses production settings by default.
+# * Unlike manage.py, asgi.py uses production settings by default.
+
 _ = os.environ.setdefault("DJANGO_SETTINGS_MODULE", "app.config.prod")
 
 application = get_asgi_application()

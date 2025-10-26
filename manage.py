@@ -8,7 +8,8 @@ import sys
 def main() -> None:
     """Run administrative tasks."""
 
-    # Unlike asgi.py and wsgi.py, manage.py uses development settings by default.
+    # * Unlike asgi.py and wsgi.py, manage.py uses development settings by default.
+
     _ = os.environ.setdefault("DJANGO_SETTINGS_MODULE", "app.config.dev")
 
     try:
