@@ -1,10 +1,10 @@
 """
-Django management command for managing Tailwind CSS.
+Django management command for managing TailwindCSS.
 
 Usage:
-    python manage.py tw install
-    python manage.py tw build
-    python manage.py tw status
+    python manage.py tailwindcss install
+    python manage.py tailwindcss build
+    python manage.py tailwindcss status
 """
 
 import platform
@@ -17,7 +17,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
-    help = "Manage Tailwind CSS installation and builds"
+    help = "Manage TailwindCSS installation and builds"
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(
@@ -27,7 +27,7 @@ class Command(BaseCommand):
         # install subcommand
         install_parser = subparsers.add_parser(
             "install",
-            help="Install tailwind node dependencies. Requires nodejs/npm is installed.",
+            help="Install tailwindcss node dependencies. Requires nodejs/npm is installed.",
         )
         install_parser.add_argument(
             "--force",
@@ -36,22 +36,22 @@ class Command(BaseCommand):
         )
 
         # build subcommand
-        subparsers.add_parser("build", help="Build Tailwind CSS (minified)")
+        subparsers.add_parser("build", help="Build TailwindCSS (minified)")
 
         # status subcommand
-        subparsers.add_parser("status", help="Check Tailwind CSS setup status")
+        subparsers.add_parser("status", help="Check TailwindCSS setup status")
 
     def handle(self, *args, **options):
-        tw_dir = Path(__file__).resolve().parent.parent.parent
+        tailwindcss_dir = Path(__file__).resolve().parent.parent.parent
 
         # Where the Tailwind config CSS file will be copied to
         # and where npm commands will be executed from
-        self.management_dir = tw_dir / "management"
+        self.management_dir = tailwindcss_dir / "management"
 
         # Output file path - the complete path to the final compiled CSS file
-        self.output_css_path = tw_dir / "static" / "tw" / "min.css"
+        self.output_css_path = tailwindcss_dir / "static" / "tailwindcss" / "min.css"
 
-        self.tw_settings = getattr(settings, "TAILWIND_CSS", {})
+        self.tailwindcss_settings = getattr(settings, "TAILWIND_CSS", {})
 
         subcommand = options["subcommand"]
 
@@ -65,7 +65,7 @@ class Command(BaseCommand):
 
     def _validate_setting(self):
         """Validate that TAILWIND_CSS setting is configured and the file exists."""
-        if not self.tw_settings or "config" not in self.tw_settings:
+        if not self.tailwindcss_settings or "config" not in self.tailwindcss_settings:
             raise CommandError(
                 (
                     "TAILWIND_CSS setting with a 'config' key is not defined in your Django settings.\n"
@@ -76,7 +76,7 @@ class Command(BaseCommand):
                 )
             )
 
-        config_setting = self.tw_settings["config"]
+        config_setting = self.tailwindcss_settings["config"]
 
         # Check if setting is a non-empty string or Path
         if not config_setting:
@@ -98,7 +98,7 @@ class Command(BaseCommand):
         if not config_path.exists():
             raise CommandError(
                 (
-                    f"Tailwind CSS config file not found: {config_path}\n"
+                    f"TailwindCSS config file not found: {config_path}\n"
                     f"TAILWIND_CSS['config'] is set to: {config_setting}\n"
                     "Please ensure the file exists or update the TAILWIND_CSS setting."
                 )
@@ -115,7 +115,7 @@ class Command(BaseCommand):
         return config_path
 
     def _copy_config(self, source_config):
-        """Copy the tailwind config css file to management directory."""
+        """Copy the tailwindcss config file to management directory."""
         dest_config = self.management_dir / "config.css"
 
         try:
@@ -196,13 +196,13 @@ class Command(BaseCommand):
             self.install(force=force)
 
     def install(self, force=False):
-        """Install tailwind dependencies."""
+        """Install tailwindcss dependencies."""
         self._check_npm()
 
         node_modules = self.management_dir / "node_modules"
 
         if force and node_modules.exists():
-            self.stdout.write(f"Force option used. Removing {node_modules}...")
+            self.stdout.write("Force option used. Removing node dependecies...")
             try:
                 shutil.rmtree(node_modules)
                 self.stdout.write(self.style.SUCCESS("✓ Removed node_modules"))
@@ -221,25 +221,25 @@ class Command(BaseCommand):
             )
 
             self.stdout.write(
-                self.style.SUCCESS("✓ tailwind install completed successfully")
+                self.style.SUCCESS("✓ tailwindcss install completed successfully")
             )
 
             if result.stdout:
                 self.stdout.write(result.stdout)
 
         except subprocess.CalledProcessError as e:
-            self.stdout.write(self.style.ERROR("✗ tailwind install failed"))
+            self.stdout.write(self.style.ERROR("✗ tailwindcss install failed"))
             self.stdout.write(e.stderr)
-            raise CommandError("tailwind install failed")
+            raise CommandError("tailwindcss install failed")
 
     def build(self):
-        """Build Tailwind CSS"""
+        """Build TailwindCSS"""
         source_config = self._validate_setting()
         self._check_npx()
         self._ensure_node_modules()
         local_config = self._copy_config(source_config)
 
-        self.stdout.write("Building Tailwind CSS...")
+        self.stdout.write("Building TailwindCSS...")
 
         try:
             command = [
@@ -260,13 +260,11 @@ class Command(BaseCommand):
                 check=True,
             )
 
-            self.stdout.write(self.style.SUCCESS("✓ Tailwind CSS build completed"))
+            self.stdout.write(self.style.SUCCESS("✓ TailwindCSS build completed"))
 
             if self.output_css_path.exists():
                 size = self.output_css_path.stat().st_size / 1024
-                self.stdout.write(
-                    f"Output file: {self.output_css_path} ({size:.2f} KB)"
-                )
+                self.stdout.write(f"Build size: {size:.2f} KB")
 
             if result.stdout:
                 self.stdout.write(result.stdout)
@@ -274,11 +272,11 @@ class Command(BaseCommand):
         except subprocess.CalledProcessError as e:
             self.stdout.write(self.style.ERROR("✗ Build failed"))
             self.stdout.write(e.stderr)
-            raise CommandError("Tailwind CSS build failed")
+            raise CommandError("TailwindCSS build failed")
 
     def status(self):
-        """Check Tailwind CSS setup status."""
-        self.stdout.write(self.style.MIGRATE_HEADING("djanX Tailwind CSS Setup Status"))
+        """Check TailwindCSS setup status."""
+        self.stdout.write(self.style.MIGRATE_HEADING("djanX TailwindCSS Setup Status"))
         self.stdout.write("-" * 50)
 
         # Check if npm is available and get its version
@@ -333,7 +331,7 @@ class Command(BaseCommand):
                 self.style.ERROR(f"✗ npx not found in PATH (OS: {platform.system()})")
             )
 
-        # Validate Tailwind CSS config setting and file existence
+        # Validate TailwindCSS config setting and file existence
         config_valid = True
         try:
             self._validate_setting()
@@ -355,6 +353,6 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(
                     self.style.WARNING(
-                        "⚠ Output CSS not found\n(run: python manage.py tailwind build)"
+                        "⚠ Output CSS not found\n(run: python manage.py tailwindcss build)"
                     )
                 )

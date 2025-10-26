@@ -1,5 +1,5 @@
 {
-  "name": "tw",
+  "name": "tailwindcss",
   "scripts": {
     "update": "npx npm-check-updates -u && npm install"
   },

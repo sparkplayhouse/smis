@@ -8,13 +8,13 @@ register = template.Library()
 @register.simple_tag
 def tailwindcss() -> SafeString:
     """
-    Generate a <link> tag for Tailwind CSS.
+    Generate a <link> tag for TailwindCSS.
 
     Returns:
-        SafeString containing the HTML <link> tag for Tailwind CSS
+        SafeString containing the HTML <link> tag for TailwindCSS
 
     Usage:
         {% tailwindcss %}
     """
-    path = static("tw/min.css")
+    path = static("tailwindcss/min.css")
     return mark_safe(f'<link rel="stylesheet" href="{path}">')

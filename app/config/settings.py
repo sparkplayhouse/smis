@@ -21,7 +21,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "djanx.tw",
+    "djanx.tailwindcss",
     "djanx.core",
     "app.main",
 ]
@@ -58,7 +58,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "app.config.wsgi.application"
 
 
-# Tailwind CSS
+# TailwindCSS
 
 TAILWIND_CSS = {
     "config": APP_DIR / "config" / "tailwind.css",
