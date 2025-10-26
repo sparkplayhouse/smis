@@ -61,15 +61,6 @@ wheels = [
 ]
 
 [[package]]
-name = "django-split-settings"
-version = "1.3.2"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/de/b9/1c13089454afd7a42d492b8aa8a0c7e49eeca58c0f2ad331f361a067c876/django_split_settings-1.3.2.tar.gz", hash = "sha256:d3975aa3601e37f65c59b9977b6bcb1de8bc27496930054078589c7d56998a9d", size = 5751, upload-time = "2024-07-05T14:30:05.997Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/63/69/d94db8dac55bcfb6b3243578a3096cfda6c42ea5da292c36919768152ec6/django_split_settings-1.3.2-py3-none-any.whl", hash = "sha256:72bd7dd9f12602585681074d1f859643fb4f6b196b584688fab86bdd73a57dff", size = 6435, upload-time = "2024-07-05T14:29:59.756Z" },
-]
-
-[[package]]
 name = "djlint"
 version = "1.36.4"
 source = { registry = "https://pypi.org/simple" }
@@ -236,7 +227,6 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "django" },
-    { name = "django-split-settings" },
     { name = "gunicorn" },
     { name = "python-decouple" },
 ]
@@ -249,7 +239,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "django", specifier = ">=6.0b1" },
-    { name = "django-split-settings", specifier = ">=1.3.2" },
     { name = "gunicorn", specifier = ">=23.0.0" },
     { name = "python-decouple", specifier = ">=3.8" },
 ]
