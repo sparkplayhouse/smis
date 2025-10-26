@@ -25,15 +25,18 @@ class Command(BaseCommand):
         )
 
         # install subcommand
-        subparsers.add_parser(
+        install_parser = subparsers.add_parser(
             "install",
             help="Install tailwind node dependencies. Requires nodejs/npm is installed.",
         )
+        install_parser.add_argument(
+            "--force",
+            action="store_true",
+            help="Force reinstall by removing node_modules before installation.",
+        )
 
         # build subcommand
-        subparsers.add_parser(
-            "build", help="Build Tailwind CSS for production (minified)"
-        )
+        subparsers.add_parser("build", help="Build Tailwind CSS (minified)")
 
         # status subcommand
         subparsers.add_parser("status", help="Check Tailwind CSS setup status")
@@ -48,32 +51,37 @@ class Command(BaseCommand):
         # Output file path - the complete path to the final compiled CSS file
         self.output_css_path = tw_dir / "static" / "tw" / "min.css"
 
+        self.tw_settings = getattr(settings, "TAILWIND_CSS", {})
+
         subcommand = options["subcommand"]
 
         match subcommand:
             case "install":
-                self.install()
+                self.install(force=options["force"])
             case "build":
                 self.build()
             case "status":
                 self.status()
 
     def _validate_setting(self):
-        """Validate that TAILWIND_CONFIG_CSS setting is configured and the file exists."""
-        # Check if setting exists
-        if not hasattr(settings, "TAILWIND_CONFIG_CSS"):
+        """Validate that TAILWIND_CSS setting is configured and the file exists."""
+        if not self.tw_settings or "config" not in self.tw_settings:
             raise CommandError(
-                "TAILWIND_CONFIG_CSS setting is not defined in your Django settings.\n"
-                "Please add it to your settings file, for example:\n"
-                "TAILWIND_CONFIG_CSS = APP_DIR / 'config' / 'tailwind.css'"
+                (
+                    "TAILWIND_CSS setting with a 'config' key is not defined in your Django settings.\n"
+                    "Please add it to your settings file, for example:\n"
+                    "TAILWIND_CSS = {\n"
+                    "    'config': APP_DIR / 'config' / 'tailwind.css',\n"
+                    "}"
+                )
             )
 
-        config_setting = settings.TAILWIND_CONFIG_CSS
+        config_setting = self.tw_settings["config"]
 
         # Check if setting is a non-empty string or Path
         if not config_setting:
             raise CommandError(
-                f"TAILWIND_CONFIG_CSS must be a non-empty string or Path, got: {config_setting!r}"
+                f"TAILWIND_CSS['config'] must be a non-empty string or Path, got: {config_setting!r}"
             )
 
         # Convert to Path object if it's a string
@@ -83,21 +91,23 @@ class Command(BaseCommand):
             config_path = config_setting
         else:
             raise CommandError(
-                f"TAILWIND_CONFIG_CSS must be a string or Path object, got: {type(config_setting).__name__}"
+                f"TAILWIND_CSS['config'] must be a string or Path object, got: {type(config_setting).__name__}"
             )
 
         # Check if directory / file exists
         if not config_path.exists():
             raise CommandError(
-                f"Tailwind CSS config file not found: {config_path}\n"
-                f"TAILWIND_CONFIG_CSS is set to: {config_setting}\n"
-                "Please ensure the file exists or update the TAILWIND_CONFIG_CSS setting."
+                (
+                    f"Tailwind CSS config file not found: {config_path}\n"
+                    f"TAILWIND_CSS['config'] is set to: {config_setting}\n"
+                    "Please ensure the file exists or update the TAILWIND_CSS setting."
+                )
             )
 
         # Check if it's actually file (not a directory)
         if not config_path.is_file():
             raise CommandError(
-                f"TAILWIND_CONFIG_CSS must point to a file, not a directory: {config_path}"
+                f"TAILWIND_CSS['config'] must point to a file, not a directory: {config_path}"
             )
 
         self.stdout.write(self.style.SUCCESS(f"✓ Using config: {config_path}"))
@@ -131,13 +141,15 @@ class Command(BaseCommand):
 
         if not npm_command:
             raise CommandError(
-                "npm not found in PATH. Please ensure Node.js and npm are installed "
-                "and added to your system PATH.\n"
-                "Visit: https://nodejs.org/\n\n"
-                "After installation, you may need to:\n"
-                "  - Restart your terminal/IDE\n"
-                "  - Add npm to your PATH environment variable\n"
-                f"  - Current OS: {platform.system()}"
+                (
+                    "npm not found in PATH. Please ensure Node.js and npm are installed "
+                    "and added to your system PATH.\n"
+                    "Visit: https://nodejs.org/\n\n"
+                    "After installation, you may need to:\n"
+                    "  - Restart your terminal/IDE\n"
+                    "  - Add npm to your PATH environment variable\n"
+                    f"  - Current OS: {platform.system()}"
+                )
             )
 
         self.npm_command = npm_command
@@ -156,13 +168,15 @@ class Command(BaseCommand):
 
         if not npx_command:
             raise CommandError(
-                "npx not found in PATH. Please ensure Node.js and npm are installed "
-                "and added to your system PATH.\n"
-                "Visit: https://nodejs.org/\n\n"
-                "After installation, you may need to:\n"
-                "  - Restart your terminal/IDE\n"
-                "  - Add npx to your PATH environment variable\n"
-                f"  - Current OS: {platform.system()}"
+                (
+                    "npx not found in PATH. Please ensure Node.js and npm are installed "
+                    "and added to your system PATH.\n"
+                    "Visit: https://nodejs.org/\n\n"
+                    "After installation, you may need to:\n"
+                    "  - Restart your terminal/IDE\n"
+                    "  - Add npx to your PATH environment variable\n"
+                    f"  - Current OS: {platform.system()}"
+                )
             )
 
         self.npx_command = npx_command
@@ -175,15 +189,25 @@ class Command(BaseCommand):
                 f"npx found at '{npx_command}' but failed to execute.\nError: {str(e)}"
             )
 
-    def _ensure_node_modules(self):
+    def _ensure_node_modules(self, force=False):
         """Ensure node_modules exists, install if not."""
         node_modules = self.management_dir / "node_modules"
-        if not node_modules.exists():
-            self.install()
+        if not node_modules.exists() or force:
+            self.install(force=force)
 
-    def install(self):
+    def install(self, force=False):
         """Install tailwind dependencies."""
         self._check_npm()
+
+        node_modules = self.management_dir / "node_modules"
+
+        if force and node_modules.exists():
+            self.stdout.write(f"Force option used. Removing {node_modules}...")
+            try:
+                shutil.rmtree(node_modules)
+                self.stdout.write(self.style.SUCCESS("✓ Removed node_modules"))
+            except Exception as e:
+                raise CommandError(f"Failed to remove node_modules: {e}")
 
         self.stdout.write("Installing node dependencies...")
 
@@ -209,25 +233,27 @@ class Command(BaseCommand):
             raise CommandError("tailwind install failed")
 
     def build(self):
-        """Build Tailwind CSS for production."""
+        """Build Tailwind CSS"""
         source_config = self._validate_setting()
         self._check_npx()
         self._ensure_node_modules()
         local_config = self._copy_config(source_config)
 
-        self.stdout.write("Building Tailwind CSS for production...")
+        self.stdout.write("Building Tailwind CSS...")
 
         try:
+            command = [
+                self.npx_command,
+                "@tailwindcss/cli",
+                "-i",
+                str(local_config.name),
+                "-o",
+                str(self.output_css_path),
+                "--minify",
+            ]
+
             result = subprocess.run(
-                [
-                    self.npx_command,
-                    "@tailwindcss/cli",
-                    "-i",
-                    str(local_config.name),
-                    "-o",
-                    str(self.output_css_path),
-                    "--minify",
-                ],
+                command,
                 cwd=self.management_dir,
                 capture_output=True,
                 text=True,
@@ -313,7 +339,7 @@ class Command(BaseCommand):
             self._validate_setting()
         except CommandError as e:
             config_valid = False
-            self.stdout.write(self.style.ERROR("✗ TAILWIND_CONFIG_CSS issue:"))
+            self.stdout.write(self.style.ERROR("✗ TAILWIND_CSS issue:"))
             self.stdout.write(f"  {str(e)}")
 
         # Check if the compiled output CSS file exists

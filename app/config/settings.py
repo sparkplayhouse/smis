@@ -2,20 +2,16 @@ from pathlib import Path
 
 from django.utils.csp import CSP
 
-# Build paths inside the project like this: BASE_DIR / 'subdir or file'.
+# Directory paths
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 APP_DIR = BASE_DIR / "app"
 
-# Tailwind CSS configuration file path
-
-TAILWIND_CONFIG_CSS = APP_DIR / "config" / "tailwind.css"
+ASSETS_DIR = APP_DIR / "assets"
 
 
-# ==============================================================================
-# APPLICATION DEFINITION
-# ==============================================================================
+# Application definition
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -62,9 +58,14 @@ TEMPLATES = [
 WSGI_APPLICATION = "app.config.wsgi.application"
 
 
-# ==============================================================================
-# DATABASE CONFIGURATION
-# ==============================================================================
+# Tailwind CSS
+
+TAILWIND_CSS = {
+    "config": APP_DIR / "config" / "tailwind.css",
+}
+
+
+# Database
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 DATABASES = {
@@ -75,9 +76,7 @@ DATABASES = {
 }
 
 
-# ==============================================================================
-# PASSWORD VALIDATION
-# ==============================================================================
+# Password validation
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -96,9 +95,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# ==============================================================================
-# INTERNATIONALIZATION
-# ==============================================================================
+# Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
@@ -110,36 +107,13 @@ USE_I18N = True
 USE_TZ = True
 
 
-# ==============================================================================
-# STATIC & MEDIA FILES
-# ==============================================================================
-
-ASSETS_DIR = APP_DIR / "assets"
-
-# Ensure assets directory exists
-
-ASSETS_DIR.mkdir(parents=True, exist_ok=True)
-
-# Create a .gitignore file in the assets directory to ignore its contents
-
-gitignore_path = ASSETS_DIR / ".gitignore"
-if not gitignore_path.exists():
-    _ = gitignore_path.write_text(
-        (
-            "# * Automatically generated once (unless you delete the entire assets folder)\n"
-            "# * As it's generated once, it will not be overwritten - you can safely edit it\n"
-            "\n"
-            "# Ignore all files within this directory\n"
-            "*"
-        )
-    )
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 
 STATIC_URL = "assets/static/"
 
 STATIC_ROOT = ASSETS_DIR / "static"
+
 
 # Media files (User-uploaded content)
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-files
@@ -149,14 +123,11 @@ MEDIA_URL = "assets/media/"
 MEDIA_ROOT = ASSETS_DIR / "media"
 
 
-# ==============================================================================
-# CONTENT SECURITY POLICY (CSP) SETTINGS
-# ==============================================================================
+# Content Security Policy
 # https://docs.djangoproject.com/en/dev/howto/csp/
 
 SECURE_CSP = {
     "default-src": [CSP.SELF],
-    # Allow self-hosted scripts and script tags with matching `nonce` attr.
     "script-src": [CSP.SELF, CSP.NONCE],
     # Example of the less secure 'unsafe-inline' option.
     "style-src": [CSP.SELF, CSP.UNSAFE_INLINE],
