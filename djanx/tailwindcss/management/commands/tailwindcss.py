@@ -16,30 +16,35 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 
+def add_tailwindcss_arguments(parser):
+    """Shared argument parser for tailwindcss commands."""
+    subparsers = parser.add_subparsers(
+        dest="subcommand", help="Available subcommands", required=True
+    )
+
+    # install subcommand
+    install_parser = subparsers.add_parser(
+        "install",
+        help="Install tailwindcss node dependencies. Requires nodejs/npm is installed.",
+    )
+    install_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force reinstall by removing node_modules before installation.",
+    )
+
+    # build subcommand
+    subparsers.add_parser("build", help="Build TailwindCSS (minified)")
+
+    # status subcommand
+    subparsers.add_parser("status", help="Check TailwindCSS setup status")
+
+
 class Command(BaseCommand):
     help = "Manage TailwindCSS installation and builds"
 
     def add_arguments(self, parser):
-        subparsers = parser.add_subparsers(
-            dest="subcommand", help="Available subcommands", required=True
-        )
-
-        # install subcommand
-        install_parser = subparsers.add_parser(
-            "install",
-            help="Install tailwindcss node dependencies. Requires nodejs/npm is installed.",
-        )
-        install_parser.add_argument(
-            "--force",
-            action="store_true",
-            help="Force reinstall by removing node_modules before installation.",
-        )
-
-        # build subcommand
-        subparsers.add_parser("build", help="Build TailwindCSS (minified)")
-
-        # status subcommand
-        subparsers.add_parser("status", help="Check TailwindCSS setup status")
+        add_tailwindcss_arguments(parser)
 
     def handle(self, *args, **options):
         tailwindcss_dir = Path(__file__).resolve().parent.parent.parent
