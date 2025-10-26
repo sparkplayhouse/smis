@@ -45,21 +45,6 @@ def title(
 
 
 @register.simple_tag
-def tailwindcss() -> SafeString:
-    """
-    Generate a <link> tag for Tailwind CSS.
-
-    Returns:
-        SafeString containing the HTML <link> tag for Tailwind CSS
-
-    Usage:
-        {% tailwindcss %}
-    """
-    path = static("djanx/core/tailwind.min.css")
-    return mark_safe(f'<link rel="stylesheet" href="{path}">')
-
-
-@register.simple_tag
 def alpinejs() -> SafeString:
     """
     Generate a <script> tag for Alpine.js with defer attribute.
@@ -70,5 +55,5 @@ def alpinejs() -> SafeString:
     Usage:
         {% alpinejs %}
     """
-    path = static("djanx/core/alpinejs.min.js")
+    path = static("core/alpinejs/min.js")
     return mark_safe(f'<script src="{path}" defer></script>')

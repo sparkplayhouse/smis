@@ -1,5 +1,5 @@
 {
-  "name": "djanx-core",
+  "name": "tw",
   "scripts": {
     "update": "npx npm-check-updates -u && npm install"
   },
