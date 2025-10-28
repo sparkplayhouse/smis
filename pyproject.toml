@@ -5,10 +5,12 @@ description = "School Management Information System for The Spark Playhouse."
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    # djangX framework
-    "django>=6.0b1",
-    "python-decouple>=3.8",
+    "django>=5.2.7",
+    # For testing CSP
+    # "django>=6.0b1",
     # User specific
+    "python-decouple>=3.8",
+    "psycopg[binary,pool]>=3.2.12",
     "gunicorn>=23.0.0",
 ]
 

@@ -2,13 +2,11 @@
 __pycache__/
 
 # Database files
-db.sqlite3
+*.sqlite*
+*.db
 
 # Environment variables
 .env
-
-# Added due to branch switching issues
-node_modules/
 
 # VS Code
 .vscode/

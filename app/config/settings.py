@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from django.utils.csp import CSP
+# from django.utils.csp import CSP
 
 # Directory paths
 
@@ -34,7 +34,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.middleware.csp.ContentSecurityPolicyMiddleware",
+    # "django.middleware.csp.ContentSecurityPolicyMiddleware",
 ]
 
 ROOT_URLCONF = "app.config.urls"
@@ -49,7 +49,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "django.template.context_processors.csp",
+                # "django.template.context_processors.csp",
             ],
         },
     },
@@ -62,17 +62,6 @@ WSGI_APPLICATION = "app.config.wsgi.application"
 
 TAILWIND_CSS = {
     "config": APP_DIR / "config" / "tailwind.css",
-}
-
-
-# Database
-# https://docs.djangoproject.com/en/dev/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
 }
 
 
@@ -126,9 +115,9 @@ MEDIA_ROOT = ASSETS_DIR / "media"
 # Content Security Policy
 # https://docs.djangoproject.com/en/dev/howto/csp/
 
-SECURE_CSP = {
-    "default-src": [CSP.SELF],
-    "script-src": [CSP.SELF, CSP.NONCE],
-    # Example of the less secure 'unsafe-inline' option.
-    # "style-src": [CSP.SELF, CSP.UNSAFE_INLINE],
-}
+# SECURE_CSP = {
+#     "default-src": [CSP.SELF],
+#     "script-src": [CSP.SELF, CSP.NONCE],
+#     # Example of the less secure 'unsafe-inline' option.
+#     # "style-src": [CSP.SELF, CSP.UNSAFE_INLINE],
+# }
