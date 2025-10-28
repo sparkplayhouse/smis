@@ -20,8 +20,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.admin",  # (depends on auth, sessions, messages, contenttypes)
     "django.contrib.staticfiles",
-    # UI & Styling
-    "djangx.tailwindcss",
+    # UI components
     "djangx.components",
     # Authentication extensions (after django.contrib.auth, djangx.components)
     "phonenumber_field",

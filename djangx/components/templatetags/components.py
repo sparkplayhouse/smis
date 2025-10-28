@@ -57,3 +57,18 @@ def alpinejs() -> SafeString:
     """
     path = static("components/alpinejs/min.js")
     return mark_safe(f'<script src="{path}" defer></script>')
+
+
+@register.simple_tag
+def tailwindcss() -> SafeString:
+    """
+    Generate a <link> tag for TailwindCSS.
+
+    Returns:
+        SafeString containing the HTML <link> tag for TailwindCSS
+
+    Usage:
+        {% tailwindcss %}
+    """
+    path = static("components/tailwindcss/min.css")
+    return mark_safe(f'<link rel="stylesheet" href="{path}">')

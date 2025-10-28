@@ -47,14 +47,16 @@ class Command(BaseCommand):
         add_tailwindcss_arguments(parser)
 
     def handle(self, *args, **options):
-        tailwindcss_dir = Path(__file__).resolve().parent.parent.parent
+        app_dir = Path(__file__).resolve().parent.parent.parent
 
         # Where the Tailwind config CSS file will be copied to
         # and where npm commands will be executed from
-        self.management_dir = tailwindcss_dir / "management"
+        self.management_dir = app_dir / "management"
 
         # Output file path - the complete path to the final compiled CSS file
-        self.output_css_path = tailwindcss_dir / "static" / "tailwindcss" / "min.css"
+        self.output_css_path = (
+            app_dir / "static" / "components" / "tailwindcss" / "min.css"
+        )
 
         self.tailwindcss_settings = getattr(settings, "TAILWIND_CSS", {})
 
