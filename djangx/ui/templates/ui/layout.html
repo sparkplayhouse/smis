@@ -1,4 +1,4 @@
-{% load tailwindcss components %}
+{% load ui %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -11,11 +11,11 @@
     {% title %}
     {% tailwindcss %}
     {% alpinejs %}
+    {% block head %}{% endblock %}
   </head>
   <body>
     <main>
-      {% block main %}
-      {% endblock main %}
+      {% block main %}{% endblock %}
     </main>
   </body>
 </html>

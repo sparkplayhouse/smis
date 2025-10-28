@@ -54,9 +54,7 @@ class Command(BaseCommand):
         self.management_dir = app_dir / "management"
 
         # Output file path - the complete path to the final compiled CSS file
-        self.output_css_path = (
-            app_dir / "static" / "components" / "tailwindcss" / "min.css"
-        )
+        self.output_css_path = app_dir / "static" / "ui" / "tailwindcss" / "min.css"
 
         self.tailwindcss_settings = getattr(settings, "TAILWIND_CSS", {})
 

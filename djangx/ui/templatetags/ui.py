@@ -55,7 +55,7 @@ def alpinejs() -> SafeString:
     Usage:
         {% alpinejs %}
     """
-    path = static("components/alpinejs/min.js")
+    path = static("ui/alpinejs/min.js")
     return mark_safe(f'<script src="{path}" defer></script>')
 
 
@@ -70,5 +70,5 @@ def tailwindcss() -> SafeString:
     Usage:
         {% tailwindcss %}
     """
-    path = static("components/tailwindcss/min.css")
+    path = static("ui/tailwindcss/min.css")
     return mark_safe(f'<link rel="stylesheet" href="{path}">')

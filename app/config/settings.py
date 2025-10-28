@@ -18,16 +18,11 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.admin",  # (depends on auth, sessions, messages, contenttypes)
+    "django.contrib.admin",
     "django.contrib.staticfiles",
-    # UI components
-    "djangx.components",
-    # Authentication extensions (after django.contrib.auth, djangx.components)
-    "phonenumber_field",
+    "djangx.ui",
     "djangx.authx",
-    # Admin extensions
     "djangx.adminx",
-    # Your custom apps
     "app.main",
 ]
 
