@@ -281,7 +281,7 @@ class Command(BaseCommand):
 
     def status(self):
         """Check TailwindCSS setup status."""
-        self.stdout.write(self.style.MIGRATE_HEADING("djanX TailwindCSS Setup Status"))
+        self.stdout.write(self.style.MIGRATE_HEADING("djangX TailwindCSS Setup Status"))
         self.stdout.write("-" * 50)
 
         # Check if npm is available and get its version

@@ -1,6 +1,4 @@
-# djanX core static
-
-This folder contains static assets for the project. Below are the sources for each asset:
+# Core static
 
 | Asset             | NPM Source            | Node Modules Path                            | CDN Source                                                         |
 | ----------------- | --------------------- | -------------------------------------------- | ------------------------------------------------------------------ |

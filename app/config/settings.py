@@ -15,14 +15,14 @@ ASSETS_DIR = APP_DIR / "assets"
 
 INSTALLED_APPS = [
     "django.contrib.admin",
-    "djanx.adminx",
+    "djangx.adminx",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "djanx.tailwindcss",
-    "djanx.core",
+    "djangx.tailwindcss",
+    "djangx.core",
     "app.main",
 ]
 
