@@ -1,4 +1,14 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
+
+# Database files
 db.sqlite3
+
+# Environment variables
 .env
+
+# Added due to branch switching issues
 node_modules/
+
+# VS Code
+.vscode/

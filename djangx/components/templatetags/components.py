@@ -55,5 +55,5 @@ def alpinejs() -> SafeString:
     Usage:
         {% alpinejs %}
     """
-    path = static("core/alpinejs/min.js")
+    path = static("components/alpinejs/min.js")
     return mark_safe(f'<script src="{path}" defer></script>')

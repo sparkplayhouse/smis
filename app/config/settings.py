@@ -14,15 +14,21 @@ ASSETS_DIR = APP_DIR / "assets"
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
-    "djangx.adminx",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "django.contrib.admin",  # (depends on auth, sessions, messages, contenttypes)
     "django.contrib.staticfiles",
+    # UI & Styling
     "djangx.tailwindcss",
-    "djangx.core",
+    "djangx.components",
+    # Authentication extensions (after django.contrib.auth, djangx.components)
+    "phonenumber_field",
+    "djangx.authx",
+    # Admin extensions
+    "djangx.adminx",
+    # Your custom apps
     "app.main",
 ]
 
@@ -130,5 +136,5 @@ SECURE_CSP = {
     "default-src": [CSP.SELF],
     "script-src": [CSP.SELF, CSP.NONCE],
     # Example of the less secure 'unsafe-inline' option.
-    "style-src": [CSP.SELF, CSP.UNSAFE_INLINE],
+    # "style-src": [CSP.SELF, CSP.UNSAFE_INLINE],
 }
