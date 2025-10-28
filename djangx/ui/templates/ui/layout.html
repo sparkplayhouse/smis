@@ -1,4 +1,4 @@
-{% load ui %}
+{% load title static %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -9,9 +9,8 @@
     <meta name="keywords" content="">
     <meta name="author" content="">
     {% title %}
-    {% tailwindcss %}
-    {% alpinejs %}
-    {% block head %}{% endblock %}
+    <link rel="stylesheet" href="{% static 'ui/tailwindcss/min.css' %}" />
+    <script src="{% static 'ui/alpinejs/min.js' %}" defer></script>
   </head>
   <body>
     <main>
